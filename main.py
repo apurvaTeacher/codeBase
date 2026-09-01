@@ -4,6 +4,10 @@ import uuid
 import docParser
 import initialization
 import classifier
+from text_processing import chunk_pages
+from embeddings import generate_embeddings
+from vector_database import store_chunks_in_chromadb,test_chromadb
+
 
 from database import (
     create_tables,
@@ -119,6 +123,12 @@ async def upload_document(file: UploadFile = File(...)):
         pages = docParser.extract_image_text(file_path)
 
     full_text = "\n".join(page["text"] for page in pages)
+    # 9. Create chunks
+    chunks = chunk_pages(
+        pages,
+        document_id,
+        file.filename
+    )
 
     category = classifier.classify_document(full_text)
     # emails = classifier.extract_email_addresses(full_text)
@@ -149,7 +159,10 @@ async def upload_document(file: UploadFile = File(...)):
     )
     save_document_pages(document_id, pages)
     update_processing_status(document_id,"processed")
-
+    generate_embeddings(chunks)
+    store_chunks_in_chromadb(chunks)
+    test_chromadb()
+   
     return {
         "document_id": document_id,
         "original_filename": file.filename,

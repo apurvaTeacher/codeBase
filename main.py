@@ -4,9 +4,10 @@ import uuid
 import docParser
 import initialization
 import classifier
-from text_processing import chunk_pages
+from chunking import chunk_pages
 from embeddings import generate_embeddings
 from vector_database import store_chunks_in_chromadb,test_chromadb
+from search import search_documents
 
 
 from database import (
@@ -70,6 +71,16 @@ def test_document_metadata(document_id: str):
         )
 
     return metadata
+
+@app.get("/search")
+def search(query: str):
+
+    results = search_documents(query)
+
+    return {
+        "query": query,
+        "results": results
+    }
 
 @app.post("/documents/upload")
 async def upload_document(file: UploadFile = File(...)):

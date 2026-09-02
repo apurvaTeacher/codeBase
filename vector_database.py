@@ -1,17 +1,11 @@
 import chromadb
 
+from chroma_store import get_collection
+
 
 def store_chunks_in_chromadb(chunks):
 
-    # Open/create persistent ChromaDB
-    client = chromadb.PersistentClient(
-        path="chroma_db"
-    )
-
-    # Open/create collection
-    collection = client.get_or_create_collection(
-        name="document_chunks"
-    )
+    collection = get_collection()
 
     for chunk in chunks:
 
@@ -51,8 +45,8 @@ def test_chromadb():
         path="chroma_db"
     )
 
-    collection = client.get_collection(
-        name="document_chunks"
+    collection = client.get_or_create_collection(
+    name="document_chunks"
     )
 
     print("\n-----------------------------")
@@ -87,3 +81,6 @@ def test_chromadb():
         print(len(results["embeddings"][i]))
 
         print("\n-----------------------------")
+
+if __name__ == "__main__":
+    test_chromadb()

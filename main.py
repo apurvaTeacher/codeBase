@@ -8,6 +8,8 @@ from chunking import chunk_pages
 from embeddings import generate_embeddings
 from vector_database import store_chunks_in_chromadb,test_chromadb
 from search import search_documents
+from pydantic import BaseModel
+from rag import ask_question
 
 
 from database import (
@@ -199,4 +201,19 @@ def delete_document(document_id: str):
 
     return {
         "message": "Document deleted successfully"
+    }
+
+class QuestionRequest(BaseModel):
+    question: str
+
+@app.post("/ask")
+def ask(request: QuestionRequest):
+
+    answer = ask_question(
+        request.question
+    )
+
+    return {
+        "question": request.question,
+        "answer": answer
     }
